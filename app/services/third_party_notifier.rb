@@ -3,12 +3,12 @@ require 'uri'
 require 'json'
 
 class ThirdPartyNotifier
-  def self.notify(message)
+  def self.notify(message, state)
     Rails.application.config.third_party_endpoints.each do |endpoint|
       uri = URI.parse(endpoint)
       request = Net::HTTP::Post.new(uri)
       request.content_type = 'application/json'
-      request.body = { message: message, authenticity_token: authenticity_token(message) }.to_json
+      request.body = { message: message, state: state, authenticity_token: authenticity_token(message) }.to_json
 
       response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.schems == 'https') do |http|
         http.request(request)
