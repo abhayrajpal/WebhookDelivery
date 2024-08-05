@@ -4,6 +4,7 @@ class MessagesController < ApplicationController
   def create
     @message = Message.new(message_params)
     if @message.save
+      notify_third_parties(@message)
       render json: @message, status: :created
     else
       render json: @message.errors, status: :unprocessable_entity
@@ -12,6 +13,7 @@ class MessagesController < ApplicationController
 
   def update
     if @message.update(message_params)
+      notify_third_parties(@message)
       render json: @message, status: :ok
     else
       render json: @message.errors, status: :unprocessable_entity
@@ -26,5 +28,9 @@ class MessagesController < ApplicationController
 
   def message_params
     params.require(:message).permit(:name, :data)
+  end
+
+  def notify_third_parties(message)
+    ThirdPartyNotifier.notify(message)
   end
 end
